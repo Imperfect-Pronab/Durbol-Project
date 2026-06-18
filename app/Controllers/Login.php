@@ -17,30 +17,34 @@ class Login extends BaseController
         $cache = \Config\Services::cache();
         $email = $this->request->getPost('email');
         $password = $this->request->getPost('password');
-        $catcheEmail = $cache->get('email');
-        $catchePassword = $cache->get('password');
+        $data = $cache->get('users');
+        if (!is_array($data)) {
+            $data = [];
+        }
         if (empty($email) && empty($password)) {
             echo "Empty email and password.";
             echo "<br />";
-            echo $catcheEmail . " - " . $catchePassword;
-        } else {
-            if ($email == $catcheEmail && $password == $catchePassword) {
-                echo "I am in.";
-                echo "<br />";
+            echo "<pre>";
+            print_r($data);
+            echo "</pre>";
+        } else if (!empty($email)) {
+            if (!empty($data[$email]) && $data[$email]['password'] == $password) {
+                echo "I am in";
             } else {
-                echo "I am out.";
-                echo "<br />";
-                $cache->save('email', $email);
-                $cache->save('password', $password);
+                echo "I am out";
+                $data[$email] = [
+                    'password' => $password,
+                ];
+                $cache->save('users', $data);
             }
-            echo $email . " - " . $password;
+        } else {
+            echo "I am out";
         }
     }
 
     public function clearCatche()
     {
         $cache = \Config\Services::cache();
-        $cache->delete('email');
-        $cache->delete('password');
+        $cache->delete('users');
     }
 }
