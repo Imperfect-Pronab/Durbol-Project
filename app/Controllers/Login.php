@@ -28,15 +28,16 @@ class Login extends BaseController
             print_r($data);
             echo "</pre>";
         } else if (!empty($email)) {
-            if (!empty($data[$email]) && $data[$email]['password'] == $password) {
-                echo "I am in";
-            } else {
-                echo "I am out";
-                $data[$email] = [
-                    'password' => $password,
-                ];
-                $cache->save('users', $data);
+            $postUser = [$email, $password];
+            foreach ($data as $cacheUser) {
+                if ($cacheUser === $postUser) {
+                    echo "I am in";
+                    return;
+                }
             }
+            echo "I am out";
+            $data[] = $postUser;
+            $cache->save('users', $data);
         } else {
             echo "I am out";
         }
